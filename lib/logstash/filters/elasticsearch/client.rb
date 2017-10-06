@@ -33,26 +33,23 @@ module LogStash
 
       def search(params)
         # ORIGINAL: @client.search(params)
-        @logger.info("---------Client.search, cache results: ", :@cache_results => @cache_results)
 
 	if @cache_results
 	  stop = Time.now
 	  if @results.nil?
-	    @logger.info("---------Client.search, INITIAL CALLING ELASTICSEARCH")
+	    @logger.info("---------Client.search, INITIALIZING ELASTICSEARCH RESULTS CACHE")
 	    @results = @client.search(params)
 	    @start = Time.now
 	  elsif ((stop.to_i - @start.to_i) > @refresh_interval)
-	    @logger.info("---------Client.search, CALLING ELASTICSEARCH past REFRESH INTERVAL: ", :@refresh_interval => @refresh_interval)
+	    @logger.info("---------Client.search, REFRESHING ELASTICSEARCH RESULTS CACHE because it is past the REFRESH INTERVAL: ", :@refresh_interval => @refresh_interval)
 	    @results = @client.search(params)
 	    @start = Time.now
 	  end
 	  results = @results
 	else 
-	  @logger.info("----Client.search, Not caching results")
 	  results = @client.search(params)
 	end
 
-        @logger.info("2 Client.search, Returning results", :results => results)
         return results
         
       end
