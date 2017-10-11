@@ -1,9 +1,9 @@
 # encoding: utf-8
 require "logstash/devutils/rspec/spec_helper"
 require "logstash/plugin"
-require "logstash/filters/elasticsearch"
+require "logstash/filters/elasticsearchcache"
 
-describe LogStash::Filters::Elasticsearch, :integration => true do
+describe LogStash::Filters::ElasticsearchCache, :integration => true do
 
   let(:config) do
     {
