@@ -1,0 +1,39 @@
+{
+	"took": 0, 
+	"timed_out": false, 
+	"_shards": {
+		"total": 1, 
+		"successful": 1, 
+		"failed": 0
+	}, 
+	"hits": {
+		"total": 1, 
+		"max_score": null, 
+		"hits": [{
+			"_index": "blocked", 
+			"_type": "endpoints", 
+			"_id": "3", 
+			"_score": null, 
+			"_source": {
+				"reporter": "sensu", 
+				"end_point_id": "spamhost", 
+				"date_blocked": "2017-09-25T14:15:29.216Z", 
+				"by": "John Doe"
+			}, 
+			"sort": [-9223372036854775808]
+		},
+		{
+			"_index": "blocked", 
+			"_type": "endpoints", 
+			"_id": "4", 
+			"_score": null, 
+			"_source": {
+				"reporter": "sensu", 
+				"end_point_id": "spamhost2", 
+				"date_blocked": "2017-09-25T14:15:29.216Z", 
+				"by": "Jane Doe"
+			}, 
+			"sort": [-9223372036854775808]
+		}]
+	}
+}

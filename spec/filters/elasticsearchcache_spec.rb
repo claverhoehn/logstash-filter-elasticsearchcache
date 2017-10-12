@@ -104,6 +104,75 @@ describe LogStash::Filters::ElasticsearchCache do
         expect(event.get("code")).to eq([404]*10)
       end
     end
+    
+    context "when asking for more than one and there are two results" do
+
+      let(:config) do
+        {
+          "hosts" => ["localhost:9200"],
+          "query" => "response: 404",
+          "fields" => [ ["response", "code"] ],
+          "result_size" => 10
+        }
+      end
+
+      let(:response) do
+        LogStash::Json.load(File.read(File.join(File.dirname(__FILE__), "fixtures", "request_x_2.json")))
+      end
+
+      it "should enhance the current event with two fields" do
+        plugin.filter(event)
+        expect(event.get("code")).to eq([404]*2)
+      end
+    end
+
+    context "when asking to cache results" do
+
+      let(:config) do
+        {
+          "hosts" => ["localhost:9200"],
+          "index" => "blocked",
+          "query" => "*:*",
+          "fields" => { "end_point_id" => "blocked" },
+          "result_size" => 10,
+	  "cache_results" => true,
+          "refresh_interval" => 60
+        }
+      end
+
+      let(:response) do
+        LogStash::Json.load(File.read(File.join(File.dirname(__FILE__), "fixtures", "blocked_x_1.json")))
+      end
+
+      it "should enhance the current event with the cache results" do
+        plugin.filter(event)
+        expect(event.get("blocked")).to eq("spamhost")
+      end
+    end
+
+    context "when asking to cache multiple results" do
+
+      let(:config) do
+        {
+          "hosts" => ["localhost:9200"],
+          "index" => "blocked",
+          "query" => "*:*",
+          "fields" => { "end_point_id" => "blocked" },
+          "result_size" => 10,
+	  "cache_results" => true,
+          "refresh_interval" => 60
+        }
+      end
+
+      let(:response) do
+        LogStash::Json.load(File.read(File.join(File.dirname(__FILE__), "fixtures", "blocked_x_2.json")))
+      end
+
+      it "should enhance the current event with the cache results" do
+        plugin.filter(event)
+        expect(event.get("blocked")).to eq(["spamhost", "spamhost2"])
+      end
+    end
 
     context "if something wrong happen during connection" do
 
