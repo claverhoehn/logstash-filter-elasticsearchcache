@@ -15,7 +15,7 @@ module LogStash
         @logger = options[:logger]
         @cache_results = options[:cache_results]
         @refresh_interval = options[:refresh_interval]
-        @logger.info("---------Client.initialize, cache results: ", :@cache_results => @cache_results)
+        @logger.debug("---------Client.initialize, cache results: ", :@cache_results => @cache_results)
 
         transport_options = {}
         if user && password
@@ -38,11 +38,19 @@ module LogStash
 	  stop = Time.now
 	  if @results.nil?
 	    @logger.info("---------Client.search, INITIALIZING ELASTICSEARCH RESULTS CACHE")
+            @logger.info("Querying elasticsearch with these params ", :params => params)
+
 	    @results = @client.search(params)
+	    
+            @logger.info("Caching these results from elasticsearch ", :@results => @results)
 	    @start = Time.now
 	  elsif ((stop.to_i - @start.to_i) > @refresh_interval)
-	    @logger.info("---------Client.search, REFRESHING ELASTICSEARCH RESULTS CACHE because it is past the REFRESH INTERVAL: ", :@refresh_interval => @refresh_interval)
+	    @logger.debug("---------Client.search, REFRESHING ELASTICSEARCH RESULTS CACHE because it is past the REFRESH INTERVAL: ", :@refresh_interval => @refresh_interval)
+            @logger.debug("Querying elasticsearch with these params ", :params => params)
+
 	    @results = @client.search(params)
+	    
+            @logger.debug("Caching these results from elasticsearch ", :@results => @results)
 	    @start = Time.now
 	  end
 	  results = @results

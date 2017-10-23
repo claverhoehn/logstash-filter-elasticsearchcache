@@ -164,11 +164,7 @@ class LogStash::Filters::ElasticsearchCache < LogStash::Filters::Base
         params[:sort] =  @sort if @enable_sort
       end
 
-      @logger.debug("Querying elasticsearch for lookup", :params => params)
-
       results = get_client.search(params)
-      
-      @logger.debug("Results returned from elasticsearch ", :results => results)
 
       @fields.each do |old_key, new_key|
         if !results['hits']['hits'].empty?
