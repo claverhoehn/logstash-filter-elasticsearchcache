@@ -34,33 +34,33 @@ module LogStash
       def search(params)
         # ORIGINAL: @client.search(params)
 
-	if @cache_results
-	  stop = Time.now
-	  if @results.nil?
-	    @logger.info("---------Client.search, INITIALIZING ELASTICSEARCH RESULTS CACHE")
+        if @cache_results
+          stop = Time.now
+          if @results.nil?
+            @logger.info("---------Client.search, INITIALIZING ELASTICSEARCH RESULTS CACHE")
             @logger.info("Querying elasticsearch with these params ", :params => params)
 
-	    @results = @client.search(params)
-	    
-            @logger.info("Caching these results from elasticsearch ", :@results => @results)
-	    @start = Time.now
-	  elsif ((stop.to_i - @start.to_i) > @refresh_interval)
-	    @logger.debug("---------Client.search, REFRESHING ELASTICSEARCH RESULTS CACHE because it is past the REFRESH INTERVAL: ", :@refresh_interval => @refresh_interval)
+            @results = @client.search(params)
 
-	    @results = @client.search(params)
-	    
+            @logger.info("Caching these results from elasticsearch ", :@results => @results)
+            @start = Time.now
+          elsif ((stop.to_i - @start.to_i) > @refresh_interval)
+            @logger.debug("---------Client.search, REFRESHING ELASTICSEARCH RESULTS CACHE because it is past the REFRESH INTERVAL: ", :@refresh_interval => @refresh_interval)
+
+            @results = @client.search(params)
+
             @logger.debug("Caching these results from elasticsearch ", :@results => @results)
-	    @start = Time.now
-	  end
-	  results = @results
-	else 
-	  results = @client.search(params)
-	end
+            @start = Time.now
+          end
+
+          results = @results
+        else
+
+          results = @client.search(params)
+        end
 
         return results
-        
       end
-
     end
   end
 end
