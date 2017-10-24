@@ -46,7 +46,6 @@ module LogStash
 	    @start = Time.now
 	  elsif ((stop.to_i - @start.to_i) > @refresh_interval)
 	    @logger.debug("---------Client.search, REFRESHING ELASTICSEARCH RESULTS CACHE because it is past the REFRESH INTERVAL: ", :@refresh_interval => @refresh_interval)
-            @logger.debug("Querying elasticsearch with these params ", :params => params)
 
 	    @results = @client.search(params)
 	    

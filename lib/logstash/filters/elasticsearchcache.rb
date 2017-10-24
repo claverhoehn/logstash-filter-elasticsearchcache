@@ -16,7 +16,7 @@ java_import "java.util.concurrent.ConcurrentHashMap"
 # ================================================================================
 # 
 # Search Elasticsearch for a previous log event and copy some fields from it
-# into the current event.  Below are two complete examples of how this filter might
+# into the current event.  Below are three complete examples of how this filter might
 # be used.
 #
 # The first example uses the legacy 'query' parameter where the user is limited to an Elasticsearch query_string.
@@ -81,6 +81,42 @@ java_import "java.util.concurrent.ConcurrentHashMap"
 # The template will be populated per event prior to being used to query Elasticsearch.
 #
 # --------------------------------------------------
+#
+# The third example uses the caching functionality to query Elasticsearch to retrieve a relatively small results list
+# which is then cached locally.
+# Then, whenever logstash receives an event, it uses this elasticsearch result cache to find a list of blocked
+# end points that we do not want to process further.
+# If the incoming event has an end_point_id that matches an end_point_id in the blocked list the event is dropped.
+# Enable the results caching by setting cache_results to true.
+# Set the refresh_interval (in seconds) to specify how frequently Elasticsearch should be queried to refresh the 
+# results cache.  If refresh_interval is not set, the default refresh_interval is 300 seconds.
+# For an example elastic search result, view spec/filters/fixtures/blocked_x_1.json.
+# [source,ruby]
+# --------------------------------------------------
+#  if [end_point_id] {
+#     elasticsearchcache {
+#        hosts => ["localhost:9200"]
+#        index => "blocked-list"
+#        query => "*:*"
+#        fields => { "end_point_id" => "blocked" }
+#        result_size => 10
+#        cache_results => true
+#        refresh_interval => 60
+#     }
+#  }
+#
+#  if [blocked] {
+#    if [end_point_id] in [blocked] {
+#      drop {}
+#    }
+#    
+#    ## Remove blocked field
+#    mutate {
+#      remove_field => [ "blocked" ]
+#    }
+#  }
+#
+#
 
 class LogStash::Filters::ElasticsearchCache < LogStash::Filters::Base
   config_name "elasticsearchcache"
@@ -128,7 +164,7 @@ class LogStash::Filters::ElasticsearchCache < LogStash::Filters::Base
   config :cache_results, :validate => :boolean, :default => false
 
   # How many seconds before refreshing the cache of results
-  config :refresh_interval, :validate => :number, :default => -1
+  config :refresh_interval, :validate => :number, :default => 300
 
   # Tags the event on failure to look up geo information. This can be used in later analysis.
   config :tag_on_failure, :validate => :array, :default => ["_elasticsearch_lookup_failure"]
