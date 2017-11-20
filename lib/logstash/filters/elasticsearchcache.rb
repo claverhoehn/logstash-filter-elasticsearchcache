@@ -208,7 +208,7 @@ class LogStash::Filters::ElasticsearchCache < LogStash::Filters::Base
           results["hits"]["hits"].to_a.each do |doc|
             set << doc["_source"][old_key]
           end
-          event.set(new_key, set)
+          event.set(new_key, set.count > 1 ? set : set.first)
         end
       end
     rescue => e
